@@ -1,0 +1,2 @@
+* * * * *    /var/lib/pgsql/bin/capture_stack_traces_from_nonidle_postgres_pids.sh > /db/capture_stack_traces_from_nonidle_postgres_pids/stack_traces.$(date +\%Y\%m\%d_\%H\%M\%S).out 2>&1
+* * * * *    /var/lib/pgsql/bin/capture_semaphore_array_states.sh > /db/capture_semaphore_array_states/semid_states.$(date +\%Y\%m\%d_\%H\%M\%S).out 2>&1
