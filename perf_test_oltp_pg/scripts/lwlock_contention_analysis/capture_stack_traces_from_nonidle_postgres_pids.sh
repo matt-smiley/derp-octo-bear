@@ -30,7 +30,8 @@ fi
 touch "$GDB_COMMAND_FILE"
 if [[ $? == 0 ]] ; then
   chmod 644 "$GDB_COMMAND_FILE"
-  echo "bt" > $GDB_COMMAND_FILE
+  echo "thread apply all bt full" > $GDB_COMMAND_FILE
+  echo "bt full" > $GDB_COMMAND_FILE
 else
   echo "ERROR: Could not write the gdb command file."
   exit 2
