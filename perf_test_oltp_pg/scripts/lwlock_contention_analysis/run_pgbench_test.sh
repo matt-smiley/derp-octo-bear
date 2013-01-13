@@ -15,9 +15,11 @@ Will run with 300 client sessions managed by 10 actual pgbench threads running f
 Each thread will run only the SELECT (-S) portion of the default transaction script.  When done, pgbench
 will show a summary report of average latencies from the client perspective.
 
-  $0 '-M extended -c 9 -j 3 -T 10 -r -f pgbench_script.query_with_join.sql'
+  $0 '-M extended -c 9 -j 3 -T 10 -n -r -f pgbench_script.custom_tables_query_with_join.sql'
 This is a short 10-second run with a modest number of sessions (9) and client threads (3).
-It uses a custom pgbench "transaction script".  For reference when writing a custom script, see:
+It uses a custom pgbench "transaction script".  Since the custom script also uses tables other than the
+standard 4 pgbench tables, suppress the initial vacuuming (-n) of the pgbench_* tables.
+For reference when writing a custom script, see:
 http://www.postgresql.org/docs/9.1/static/pgbench.html#AEN136638
 
 For reference, the pgbench args are:
@@ -28,6 +30,7 @@ For reference, the pgbench args are:
   -S             Transactions are read-only (just the SELECT statement from the default transaction script).
   -r             Report the average per-statement latency from client's perspective.
   -T N           Run test for N seconds.
+  -n             Skip the VACUUM on the 4 pgbench tables.  Use this when working with custom tables.
 HERE
 }
 
