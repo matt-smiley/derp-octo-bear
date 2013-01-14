@@ -82,3 +82,21 @@ echo
 echo "Tally by caller and delay counter:"
 cat pglogfile | grep 's_lock: spin delay from file' | perl -pe 's|.*?(s_lock:.*), pointer.*|$1|' | sort | uniq -c
 echo "----------------------------------------------"
+
+echo ; echo
+echo "Stack traces: "
+echo "----------------------------------------------"
+NUM_STACKS=$( cat stack_traces.* | grep -c '#0' )
+echo "Number of stacks captured: $NUM_STACKS"
+for FUNCTION_NAME in semop PGSemaphoreLock LWLockAcquire BufferAlloc ReadBuffer_common ReadBufferExtended index_getnext get_actual_variable_range ineq_histogram_selectivity scalarineqsel mergejoinscansel cached_scansel cost_mergejoin create_mergejoin_path sort_inner_and_outer add_paths_to_joinrel make_join_rel make_rels_by_clause_joins join_search_one_level standard_join_search query_planner grouping_planner subquery_planner standard_planner pg_plan_query pg_plan_queries exec_bind_message PostgresMain
+do
+  FUNCTION_COUNT=$( cat stack_traces.* | grep -c "^#.* $FUNCTION_NAME " )
+  echo "Number of stack frames calling function: $FUNCTION_COUNT $FUNCTION_NAME"
+done
+echo
+RARE_FRAME_PCT_OF_STACKS=5  # Interesting frames must occur in > x % of stacks.
+RARE_FRAME_THRESHOLD=$(( $RARE_FRAME_PCT_OF_STACKS * $NUM_STACKS / 100 ))  # Using integer division to alway truncate fractions.
+echo "Aggregate stacks by function, source line number, and frame number."
+echo "For brevity, omitting rare stack frames occurring in <= $RARE_FRAME_THRESHOLD stacks ($RARE_FRAME_PCT_OF_STACKS%):"
+cat stack_traces.* | ../stack_trace_filter.simplify_frames.pl | ../stack_trace_filter.regexp_match_on_whole_stack.pl 'Frame 0' | sort -n -k2 | uniq -c | awk "\$1 >= $RARE_FRAME_THRESHOLD"
+echo "----------------------------------------------"
