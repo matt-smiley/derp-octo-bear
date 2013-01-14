@@ -42,6 +42,13 @@ fi
 PGBENCH_ARGS="$1"
 PG_CONSTR="-p 9000 toy_db"
 
+echo "$(date '+%Y-%m-%d %H:%M:%S')  Confirming we can run sudo (used by some capture routines)."
+sudo -v
+if [ $? -ne 0 ] ; then
+    echo "ERROR: Failed the sudo test.  Please either enable sudo or disable the semaphore and stack trace captures."
+    exit 1
+fi
+
 RUNID=$( date +%Y%m%d_%H%M%S )
 TOPDIR="$( dirname $0 )"
 OUTDIR="$TOPDIR/results.$RUNID"
@@ -75,6 +82,14 @@ echo "$(date '+%Y-%m-%d %H:%M:%S')  Capturing ps frequently."
 bash -c "while (true) ; do ps -e -o pid,ppid,pcpu,pmem,vsz,rss,s,user,policy,cputime,lstart,args > $OUTDIR/ps.\$(date +%Y%m%d_%H%M%S).out ; sleep 5 ; done" &
 PS_PID=$!
 
+echo "$(date '+%Y-%m-%d %H:%M:%S')  Capturing semaphore arrays' states frequently."
+bash -c "while (true) ; do $TOPDIR/capture_semaphore_array_states.sh > $OUTDIR/semid_states.\$(date +%Y%m%d_%H%M%S).out 2>&1 ; sleep 5 ; done" &
+SEMID_PID=$!
+
+echo "$(date '+%Y-%m-%d %H:%M:%S')  Capturing stack traces serially but frequently."
+bash -c "while (true) ; do $TOPDIR/capture_stack_traces_from_nonidle_postgres_pids.sh > $OUTDIR/stack_traces.\$(date +%Y%m%d_%H%M%S).out 2>&1 ; sleep 5 ; done" &
+STACK_PID=$!
+
 PGBENCH_CMD="pgbench $PGBENCH_ARGS $PG_CONSTR"
 echo "$(date '+%Y-%m-%d %H:%M:%S')  Running pgbench with following options:"
 echo "$(date '+%Y-%m-%d %H:%M:%S')    $PGBENCH_CMD"
@@ -95,6 +110,12 @@ kill $TOP_PID
 
 echo "$(date '+%Y-%m-%d %H:%M:%S')  Killing ps capture."
 kill $PS_PID
+
+echo "$(date '+%Y-%m-%d %H:%M:%S')  Killing semaphore arrays capture."
+kill $SEMID_PID
+
+echo "$(date '+%Y-%m-%d %H:%M:%S')  Killing stack trace capture."
+kill $STACK_PID
 
 echo "$(date '+%Y-%m-%d %H:%M:%S')  Rotating Pg log file again, to close the book for this run."
 echo "select pg_rotate_logfile()" | psql -AXqt $PG_CONSTR
