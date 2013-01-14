@@ -1,0 +1,27 @@
+# Generic
+max_connections = 100
+shared_buffers = 16MB
+datestyle = 'iso, mdy'
+lc_messages = 'en_US.UTF-8'
+lc_monetary = 'en_US.UTF-8'
+lc_numeric = 'en_US.UTF-8'
+lc_time = 'en_US.UTF-8'
+default_text_search_config = 'pg_catalog.english'
+
+# Custom, optional
+shared_preload_libraries = 'auto_explain,pg_stat_statements'
+logging_collector = on
+log_rotation_size = 0
+log_min_duration_statement = 0
+log_connections = on
+log_disconnections = on
+log_line_prefix = '<%p, sessid=%c, %l, %m> %q<user=%u, cmd=%i, vxid=%v, xid=%x> '
+log_lock_waits = on
+log_statement = 'all'
+log_temp_files = 0
+autovacuum = off
+custom_variable_classes = 'auto_explain,pg_stat_statements'
+auto_explain.log_min_duration = '10000ms'
+pg_stat_statements.max = 1000
+pg_stat_statements.track = top
+#trace_lwlocks = off   # Requires building postgres with LOCK_DEBUG, defined in src/include/pg_config_manual.h.
