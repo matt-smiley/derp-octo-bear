@@ -17,8 +17,7 @@ if [ ! -x "$EXECUTABLE" ] ; then
     exit 3
 fi
 
-PROGNAME=$( basename $1 )
-OUTDIR="/db/archived_logs/$( basename "$EXECUTABLE" )/$( date +%Y%m%d )"
+OUTDIR="/db/archived_logs/$( basename "$EXECUTABLE" | awk -F. '{print $1}' )/$( date +%Y%m%d )"
 OUTFILE="$OUTDIR/$(date +%Y%m%d_%H%M%S).out"
 
 mkdir -p $OUTDIR
