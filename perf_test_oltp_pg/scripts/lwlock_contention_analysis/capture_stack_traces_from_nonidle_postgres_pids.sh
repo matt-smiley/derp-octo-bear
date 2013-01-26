@@ -30,6 +30,9 @@ fi
 touch "$GDB_COMMAND_FILE"
 if [[ $? == 0 ]] ; then
   chmod 644 "$GDB_COMMAND_FILE"
+  # Modern versions of Postgres are built with --enable-threadsafety, so it should be fine to request traces of all threads in case more than one is present.
+  # If we get no traces from "thread apply all bt ...", the switch back to plain "bt ...".
+  # Also, normally backtrace ("bt") only gives the frames themselves, but go ahead and request the local variables for each frame too ("bt full").
   echo "thread apply all bt full" > $GDB_COMMAND_FILE
 #  echo "bt full" > $GDB_COMMAND_FILE
 else
