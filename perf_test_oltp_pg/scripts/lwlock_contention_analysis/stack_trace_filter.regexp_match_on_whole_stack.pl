@@ -5,6 +5,7 @@ use strict;
 my $pattern = shift @ARGV;
 my $stack = "";
 while (my $line = <>) {
+    $line =~ s/^#/Frame /;
     if ($line =~ /^Frame (\d+)/) {
         if ($1 > 0) {
             $stack .= $line;
