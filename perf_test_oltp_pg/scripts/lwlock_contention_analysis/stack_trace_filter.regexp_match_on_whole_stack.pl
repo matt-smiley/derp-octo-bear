@@ -2,17 +2,28 @@
 
 use strict;
 
-my $pattern = shift @ARGV;
-my $stack = "";
-while (my $line = <>) {
-    $line =~ s/^#/Frame /;
-    if ($line =~ /^Frame (\d+)/) {
-        if ($1 > 0) {
-            $stack .= $line;
-        } else {
-            print "$stack\n" if $stack =~ /$pattern/s;
-            $stack = $line;
+sub foreach_stack_do
+{
+    my ($func) = @_;
+    my @stack;
+    while (my $line = <>) {
+        $line =~ s/^#/Frame /;
+        if (my ($frame_number) = ($line =~ /^(?:#|Frame )(\d+)/)) {
+            if ($frame_number > 0) {
+                push @stack, $line;
+            } else {
+                $func->(\@stack);
+                @stack = ($line);
+            }
         }
     }
+    $func->(\@stack);
 }
-print "$stack\n" if $stack =~ /$pattern/s;
+
+my $pattern = shift @ARGV;
+foreach_stack_do(
+    sub ($) {
+        my ($stack) = @_;
+        print join("", @$stack) . "\n" if join("", @$stack) =~ /$pattern/s;
+    }
+);
