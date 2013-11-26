@@ -50,6 +50,7 @@ do
   EXECUTABLE=$( ls -l /proc/$PID/exe | sed 's/.* -> //' )
   if [[ $( echo "$EXECUTABLE" | grep -c 'postgres' ) -gt 0 ]] ; then
     echo "Stack trace for PID: $PID"
+    echo "Trace start time: $( date '+%Y-%m-%d %H:%M:%S' )"
     gdb -batch -n -x "$GDB_COMMAND_FILE" "$EXECUTABLE" $PID
   else
     echo "ERROR: Executable for PID $PID does not appear to be postgres: '$EXECUTABLE'"
